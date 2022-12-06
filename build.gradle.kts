@@ -1,14 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("java")
     id("org.jetbrains.intellij") version "1.10.0"
-    kotlin("jvm") version "1.7.21"
+    id("org.jetbrains.kotlin.jvm") version "1.7.22"
     id("org.jmailen.kotlinter") version "3.12.0"
 }
-
-// Corresponds to IDEA 2022.1, see KotlinVersion class in ideaIC/3rd-party-rt.jar
-val kotlinVersion = "1.6.10"
-val kotlinLanguageVersion = kotlinVersion.substringBeforeLast('.')
 
 group = "dev.architectury"
 version = "1.6.3"
@@ -17,8 +14,8 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation(kotlin("stdlib", kotlinVersion))
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
@@ -28,19 +25,20 @@ intellij {
 }
 
 tasks {
+    buildSearchableOptions {
+        enabled = false
+    }
+
     jar {
         from("COPYING", "COPYING.LESSER")
     }
 
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "11"
-        kotlinOptions {
-            apiVersion = kotlinLanguageVersion
-            languageVersion = kotlinLanguageVersion
-        }
     }
 
     patchPluginXml {
+        version.set("${project.version}")
         sinceBuild.set("221")
         untilBuild.set("223.*")
     }
